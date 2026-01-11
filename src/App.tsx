@@ -5,22 +5,32 @@ import { LiveFeed } from './components/LiveFeed';
 import { SentimentGauge } from './components/SentimentGauge';
 import { TechStack } from './components/TechStack';
 import { HistoricalCard } from './components/HistoricalCard';
-import { HISTORICAL_STORY, TOPICS, SENTIMENT } from './data/mockData';
-import { fetchTopStories } from './services/hnApi';
+import { fetchTopStories, fetchHistoricalStory, extractTechStack, calculateSentiment } from './services/hnApi';
 import type { HNStory } from './services/hnApi';
 
 export default function App() {
   const [timeframe, setTimeframe] = useState('24h');
   const [search, setSearch] = useState('');
   const [stories, setStories] = useState<HNStory[]>([]);
+  const [historicalStory, setHistoricalStory] = useState<HNStory | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      const data = await fetchTopStories(10);
-      setStories(data);
-      setLoading(false);
+      try {
+        const [topData, histData] = await Promise.all([
+          fetchTopStories(12),
+          fetchHistoricalStory().catch(() => null)
+        ]);
+        
+        if (topData.length > 0) setStories(topData);
+        if (histData) setHistoricalStory(histData);
+      } catch (err) {
+        console.error("Protocol failure:", err);
+      } finally {
+        setLoading(false);
+      }
     };
     loadData();
   }, [timeframe]);
@@ -28,6 +38,9 @@ export default function App() {
   const filteredStories = stories.filter(s => 
     s.title.toLowerCase().includes(search.toLowerCase())
   );
+
+  const techStack = extractTechStack(stories);
+  const sentiment = calculateSentiment(stories);
 
   if (loading) {
     return (
@@ -46,7 +59,7 @@ export default function App() {
         <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] bg-blue-500/5 rounded-full blur-[140px]" />
       </div>
 
-      <div className="relative z-10 p-6 md:p-12 max-w-400 mx-auto">
+      <div className="relative z-10 p-6 md:p-12 max-w-[1600px] mx-auto">
         <Header 
           search={search} 
           setSearch={setSearch} 
@@ -63,13 +76,13 @@ export default function App() {
           <LiveFeed stories={filteredStories.slice(1)} />
 
           {/* Sentiment Gauge */}
-          <SentimentGauge sentiment={SENTIMENT} />
+          <SentimentGauge sentiment={sentiment} />
 
           {/* Tech Trends */}
-          <TechStack topics={TOPICS} />
+          <TechStack topics={techStack} />
 
           {/* Historical context */}
-          <HistoricalCard story={HISTORICAL_STORY} />
+          {historicalStory && <HistoricalCard story={historicalStory} />}
         </div>
 
         {/* Global Stats / Footer Meta */}
@@ -77,7 +90,9 @@ export default function App() {
            <div className="flex items-center gap-16">
               <div className="flex flex-col">
                 <span className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] mb-2">Total Packets</span>
-                <span className="text-lg font-['JetBrains_Mono'] font-bold text-zinc-500 tabular-nums tracking-tighter">4,129,082</span>
+                <span className="text-lg font-['JetBrains_Mono'] font-bold text-zinc-500 tabular-nums tracking-tighter">
+                  {stories.length > 0 ? (stories[0].id).toLocaleString() : '---'}
+                </span>
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] mb-2">Protocol Status</span>
