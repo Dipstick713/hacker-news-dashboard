@@ -2,9 +2,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { LayoutGrid } from 'lucide-react';
 import { BentoCard } from './BentoCard';
+import type { HNStory } from '../services/hnApi';
 
 interface LiveFeedProps {
-  stories: any[];
+  stories: HNStory[];
 }
 
 export const LiveFeed = ({ stories }: LiveFeedProps) => {
@@ -21,8 +22,11 @@ export const LiveFeed = ({ stories }: LiveFeedProps) => {
       <div className="space-y-3 overflow-y-auto pr-2 flex-1 scrollbar-hide min-h-0">
         <AnimatePresence>
           {stories.map((story, i) => (
-            <motion.div 
+            <motion.a 
               key={story.id} 
+              href={story.url || `https://news.ycombinator.com/item?id=${story.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
               initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 + i * 0.1 }}
@@ -38,7 +42,7 @@ export const LiveFeed = ({ stories }: LiveFeedProps) => {
                 </div>
                 <span className="text-[9px] font-['JetBrains_Mono'] text-zinc-700 font-bold uppercase tracking-tighter">@{story.author}</span>
               </div>
-            </motion.div>
+            </motion.a>
           ))}
         </AnimatePresence>
       </div>

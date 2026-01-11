@@ -3,9 +3,10 @@ import { motion } from 'framer-motion';
 import { Flame, TrendingUp, MessageSquare, ArrowUpRight } from 'lucide-react';
 import { BentoCard } from './BentoCard';
 import { SmoothSparkline } from './SmoothSparkline';
+import type { HNStory } from '../services/hnApi';
 
 interface VelocityCardProps {
-  story: any;
+  story: HNStory;
 }
 
 export const VelocityCard = ({ story }: VelocityCardProps) => {
@@ -70,9 +71,14 @@ export const VelocityCard = ({ story }: VelocityCardProps) => {
               </div>
               <SmoothSparkline data={story.history || []} />
            </div>
-           <button className="w-full md:w-auto flex items-center justify-center gap-3 px-10 py-5 bg-white text-black rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-orange-500 transition-all transform hover:-translate-y-1 active:translate-y-0 shadow-2xl">
+           <a 
+             href={story.url || `https://news.ycombinator.com/item?id=${story.id}`}
+             target="_blank"
+             rel="noopener noreferrer"
+             className="w-full md:w-auto flex items-center justify-center gap-3 px-10 py-5 bg-white text-black rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-orange-500 transition-all transform hover:-translate-y-1 active:translate-y-0 shadow-2xl"
+           >
               Extract <ArrowUpRight className="w-4 h-4" />
-           </button>
+           </a>
         </div>
       </div>
 

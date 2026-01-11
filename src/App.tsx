@@ -1,15 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { VelocityCard } from './components/VelocityCard';
 import { LiveFeed } from './components/LiveFeed';
 import { SentimentGauge } from './components/SentimentGauge';
 import { TechStack } from './components/TechStack';
 import { HistoricalCard } from './components/HistoricalCard';
-import { MOCK_STORIES, HISTORICAL_STORY, TOPICS, SENTIMENT } from './data/mockData';
+import { HISTORICAL_STORY, TOPICS, SENTIMENT } from './data/mockData';
+import { fetchTopStories } from './services/hnApi';
+import type { HNStory } from './services/hnApi';
 
 export default function App() {
   const [timeframe, setTimeframe] = useState('24h');
   const [search, setSearch] = useState('');
+  const [stories, setStories] = useState<HNStory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      const data = await fetchTopStories(10);
+      setStories(data);
+      setLoading(false);
+    };
+    loadData();
+  }, [timeframe]);
+
+  const filteredStories = stories.filter(s => 
+    s.title.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6">
+        <div className="w-16 h-16 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin mb-4" />
+        <p className="text-[10px] font-black text-orange-500 uppercase tracking-[0.4em] animate-pulse">Initializing Protocol...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black font-['Inter'] text-zinc-300 selection:bg-orange-500/30 selection:text-orange-200">
@@ -19,7 +46,7 @@ export default function App() {
         <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] bg-blue-500/5 rounded-full blur-[140px]" />
       </div>
 
-      <div className="relative z-10 p-6 md:p-12 max-w-[1600px] mx-auto">
+      <div className="relative z-10 p-6 md:p-12 max-w-400 mx-auto">
         <Header 
           search={search} 
           setSearch={setSearch} 
@@ -30,10 +57,10 @@ export default function App() {
         {/* Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 auto-rows-[200px]">
           {/* Top Story / Velocity Hero */}
-          <VelocityCard story={MOCK_STORIES[0]} />
+          {filteredStories.length > 0 && <VelocityCard story={filteredStories[0]} />}
 
           {/* Live Stream */}
-          <LiveFeed stories={MOCK_STORIES.slice(1)} />
+          <LiveFeed stories={filteredStories.slice(1)} />
 
           {/* Sentiment Gauge */}
           <SentimentGauge sentiment={SENTIMENT} />
