@@ -16,10 +16,19 @@ export default function App() {
   const [historicalStory, setHistoricalStory] = useState<HNStory | null>(null);
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lastFetchTime, setLastFetchTime] = useState(0);
 
   useEffect(() => {
     const loadData = async () => {
+      // Rate limit: Prevent refreshing more than once every 5 seconds
+      const now = Date.now();
+      if (now - lastFetchTime < 5000 && !loading) {
+        console.warn("Rate limit: Refresh throttled.");
+        return;
+      }
+
       setLoading(true);
+      setLastFetchTime(now);
       try {
         // Fetch top stories first (critical for initial render)
         const topData = await fetchTopStories(12, timeframe);

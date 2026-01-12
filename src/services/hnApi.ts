@@ -1,3 +1,5 @@
+import { dataRateLimiter } from '../utils/rateLimiter';
+
 const BASE_URL = 'https://hacker-news.firebaseio.com/v0';
 
 export interface HNStory {
@@ -55,7 +57,13 @@ export const fetchStoryDetails = async (id: number): Promise<HNStory | null> => 
   }
 };
 
+let lastStories: HNStory[] = [];
+
 export const fetchTopStories = async (limit: number = 20, timeframe: string = '24h'): Promise<HNStory[]> => {
+  if (!(await dataRateLimiter.checkLimit()) && lastStories.length > 0) {
+    return lastStories;
+  }
+
   try {
     // Determine the timestamp for filtering
     const now = Math.floor(Date.now() / 1000);
@@ -71,7 +79,7 @@ export const fetchTopStories = async (limit: number = 20, timeframe: string = '2
     const data = await res.json();
     
     if (data.hits && data.hits.length > 0) {
-      return data.hits.map((hit: any) => ({
+      lastStories = data.hits.map((hit: any) => ({
         id: parseInt(hit.objectID),
         title: hit.title || 'Untitled Protocol',
         points: hit.points || 0,
@@ -83,6 +91,7 @@ export const fetchTopStories = async (limit: number = 20, timeframe: string = '2
         velocity: Math.floor(Math.random() * 50) + 5, 
         history: Array.from({ length: 10 }, () => Math.floor(Math.random() * 100))
       }));
+      return lastStories;
     }
 
     // Fallback to Firebase if Algolia fails or returns nothing
@@ -91,7 +100,8 @@ export const fetchTopStories = async (limit: number = 20, timeframe: string = '2
     const storyPromises = ids.slice(0, limit).map(id => fetchStoryDetails(id));
     const results = await Promise.all(storyPromises);
     
-    return results.filter((s): s is HNStory => s !== null && !!s.title);
+    lastStories = results.filter((s): s is HNStory => s !== null && !!s.title);
+    return lastStories;
   } catch (error) {
     console.error('Error fetching HN stories:', error);
     return [];

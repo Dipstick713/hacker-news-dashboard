@@ -1,3 +1,5 @@
+import { aiRateLimiter } from '../utils/rateLimiter';
+
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
 export interface AIAnalysis {
@@ -13,7 +15,17 @@ export interface AIAnalysis {
   intensity: string;
 }
 
+// Simple cache to prevent redundant calls
+let cachedAnalysis: AIAnalysis | null = null;
+let lastAnalysisAttempt = 0;
+
 export const analyzeStoriesWithGroq = async (stories: string[]): Promise<AIAnalysis> => {
+  // Check rate limit
+  const canProceed = await aiRateLimiter.checkLimit();
+  if (!canProceed && cachedAnalysis) {
+    return cachedAnalysis;
+  }
+
   if (!GROQ_API_KEY) {
     console.warn("Groq API key not found. Using fallback analysis.");
     return {
@@ -76,7 +88,7 @@ export const analyzeStoriesWithGroq = async (stories: string[]): Promise<AIAnaly
 
     const content = JSON.parse(rawContent);
     
-    return {
+    cachedAnalysis = {
       sentiment: {
         skeptical: content.sentiment?.skeptical ?? 50,
         excited: content.sentiment?.excited ?? 50,
@@ -88,6 +100,8 @@ export const analyzeStoriesWithGroq = async (stories: string[]): Promise<AIAnaly
       trajectory: content.trajectory || [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
       intensity: content.intensity || "High Density"
     };
+
+    return cachedAnalysis;
   } catch (error) {
     console.error("Groq Analysis Failed:", error);
     // Return more natural-looking fallback data instead of scary error messages
