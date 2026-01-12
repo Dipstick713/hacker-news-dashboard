@@ -8,7 +8,7 @@ interface HeaderProps {
 
 export const Header = ({ timeframe, setTimeframe }: HeaderProps) => {
   return (
-    <header className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16">
+    <header className="flex flex-col md:flex-row md:items-center justify-between gap-10 md:gap-8 mb-12 md:mb-16">
       <div className="flex items-center gap-4">
         <div className="p-3 bg-white/5 border border-white/10 rounded-2xl">
           <Activity className="w-8 h-8 text-white" />
@@ -19,14 +19,14 @@ export const Header = ({ timeframe, setTimeframe }: HeaderProps) => {
         </div>
       </div>
 
-      <div className="flex items-center gap-6">
+      <div className="flex items-center justify-center md:justify-end gap-6">
         {/* Timeframe Selector */}
-        <div className="flex bg-zinc-900/50 border border-white/5 p-1 rounded-xl">
+        <div className="flex bg-zinc-900/50 border border-white/5 p-1 rounded-xl w-full sm:w-auto">
           {['1h', '24h', '7d'].map((t) => (
             <button
               key={t}
               onClick={() => setTimeframe(t)}
-              className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
+              className={`flex-1 sm:flex-none px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${
                 timeframe === t 
                   ? "bg-white text-black shadow-lg" 
                   : "text-zinc-500 hover:text-white"

@@ -89,7 +89,7 @@ export default function App() {
         />
 
         {/* Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 auto-rows-[200px]">
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 md:auto-rows-[200px]">
           {/* Top Story / Velocity Hero */}
           {stories.length > 0 && (
             <VelocityCard 
@@ -118,14 +118,14 @@ export default function App() {
 
         {/* Global Stats / Footer Meta */}
         <footer className="mt-20 py-16 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-12">
-           <div className="flex items-center gap-16">
-              <div className="flex flex-col">
+           <div className="flex flex-col sm:flex-row items-center gap-8 sm:gap-16">
+              <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
                 <span className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] mb-2">Total Packets</span>
                 <span className="text-lg font-['JetBrains_Mono'] font-bold text-zinc-500 tabular-nums tracking-tighter">
                   {stories.length > 0 ? (stories[0].id).toLocaleString() : '---'}
                 </span>
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
                 <span className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] mb-2">Protocol Status</span>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -134,7 +134,7 @@ export default function App() {
               </div>
            </div>
            
-           <div className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.5em] font-['JetBrains_Mono']">
+           <div className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.5em] font-['JetBrains_Mono'] text-center">
              HN.DASHBOARD // BLACK-BOX-SYSTEM
            </div>
         </footer>

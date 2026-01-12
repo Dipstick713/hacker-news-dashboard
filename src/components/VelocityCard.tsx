@@ -39,7 +39,7 @@ export const VelocityCard = ({ story, summary, trajectory, intensity }: Velocity
         
         {/* Content Area - Fixed Underflow */}
         <div className="flex-1 min-h-0 overflow-hidden flex flex-col justify-center">
-          <h2 className="text-3xl md:text-5xl lg:text-7xl font-black text-white leading-[1.05] tracking-tighter mb-4 group-hover:tracking-tight transition-all duration-500 line-clamp-2 lg:line-clamp-3">
+          <h2 className="text-4xl md:text-5xl lg:text-7xl font-black text-white leading-[1.05] tracking-tighter mb-4 group-hover:tracking-tight transition-all duration-500 line-clamp-3 md:line-clamp-2 lg:line-clamp-3">
             {story.title}
           </h2>
 
@@ -48,19 +48,19 @@ export const VelocityCard = ({ story, summary, trajectory, intensity }: Velocity
               <motion.p 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-orange-500/80 font-['JetBrains_Mono'] text-xs uppercase tracking-wider mb-8 max-w-2xl line-clamp-2 italic"
+                className="text-orange-500/80 font-['JetBrains_Mono'] text-xs uppercase tracking-wider mb-6 md:mb-8 max-w-2xl line-clamp-2 italic"
               >
                 Intelligence: {summary}
               </motion.p>
             ) : (
-              <div className="flex items-center gap-2 mb-8 animate-pulse text-zinc-800">
+              <div className="flex items-center gap-2 mb-6 md:mb-8 animate-pulse text-zinc-800">
                 <div className="w-1 h-1 rounded-full bg-orange-500/20" />
                 <span className="text-[10px] font-black uppercase tracking-[0.2em]">Intercepting Neural Stream...</span>
               </div>
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-8 md:gap-12 text-zinc-400">
+          <div className="flex flex-wrap items-center gap-6 sm:gap-8 md:gap-12 text-zinc-400">
             <div className="flex flex-col">
               <span className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em] mb-2">Momentum</span>
               <div className="flex items-center gap-3 text-2xl md:text-3xl font-black text-white">
@@ -83,7 +83,7 @@ export const VelocityCard = ({ story, summary, trajectory, intensity }: Velocity
         </div>
 
         {/* Footer Trajectory - Fixed layout */}
-        <div className="mt-8 pt-8 border-t border-white/5 flex flex-col md:flex-row items-end justify-between gap-6 shrink-0">
+        <div className="mt-8 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center md:items-end justify-between gap-8 md:gap-6 shrink-0">
            <div className="w-full md:w-2/3">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">{trajectory ? 'AI Waveform Analysis' : 'Live Analysis Flow'}</p>
