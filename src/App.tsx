@@ -12,7 +12,6 @@ import type { HNStory } from './services/hnApi';
 
 export default function App() {
   const [timeframe, setTimeframe] = useState('24h');
-  const [search, setSearch] = useState('');
   const [stories, setStories] = useState<HNStory[]>([]);
   const [historicalStory, setHistoricalStory] = useState<HNStory | null>(null);
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
@@ -44,9 +43,6 @@ export default function App() {
     loadData();
   }, [timeframe]);
 
-  const filteredStories = stories.filter(s => 
-    s.title.toLowerCase().includes(search.toLowerCase())
-  );
 
   const techStack = aiAnalysis && aiAnalysis.tags.length > 0
     ? aiAnalysis.tags.map(t => ({ 
@@ -66,7 +62,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6">
         <div className="w-16 h-16 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin mb-4" />
-        <p className="text-[10px] font-black text-orange-500 uppercase tracking-[0.4em] animate-pulse">Initializing Protocol...</p>
+        <p className="text-[10px] font-black text-orange-500 uppercase tracking-[0.4em] animate-pulse"></p>
       </div>
     );
   }
@@ -81,8 +77,6 @@ export default function App() {
 
       <div className="relative z-10 p-6 md:p-12 max-w-[1600px] mx-auto">
         <Header 
-          search={search} 
-          setSearch={setSearch} 
           timeframe={timeframe} 
           setTimeframe={setTimeframe} 
         />
@@ -90,9 +84,9 @@ export default function App() {
         {/* Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 auto-rows-[200px]">
           {/* Top Story / Velocity Hero */}
-          {filteredStories.length > 0 && (
+          {stories.length > 0 && (
             <VelocityCard 
-              story={filteredStories[0]} 
+              story={stories[0]} 
               summary={aiAnalysis?.executiveSummary} 
               trajectory={aiAnalysis?.trajectory}
               intensity={aiAnalysis?.intensity}
@@ -100,7 +94,7 @@ export default function App() {
           )}
 
           {/* Live Stream */}
-          <LiveFeed stories={filteredStories.slice(1)} />
+          <LiveFeed stories={stories.slice(1)} />
 
           {/* Sentiment Gauge */}
           <SentimentGauge 

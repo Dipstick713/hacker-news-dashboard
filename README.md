@@ -1,73 +1,49 @@
-# React + TypeScript + Vite
+# HN DASHBOARD
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A real-time Hacker News intelligence dashboard featuring AI-driven sentiment analysis, tech trend monitoring, and velocity tracking.
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The HN Dashboard provides a high-fidelity view of current technology trends and community sentiment by analyzing the Hacker News front page. It utilizes the Groq AI API to provide deep insights into the underlying narrative of the tech ecosystem.
 
-## React Compiler
+## Core Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Real-Time Live Feed: Direct integration with the Hacker News API for up-to-the-minute story tracking.
+- AI Intelligence Pipeline: Sentiment analysis and executive summaries powered by Llama 3 via Groq.
+- Social Bias Gauge: Visual representation of community sentiment (Skeptical vs Excited).
+- Tech Density Analysis: Automated tracking of trending technologies and frameworks.
+- Momentum Tracking: Real-time calculation of story points, comments, and hourly velocity.
+- Historical Context: Automated retrieval of significant historical stories for comparative analysis.
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Frontend: React 18, TypeScript, Vite
+- Styling: Tailwind CSS
+- Animation: Framer Motion
+- Icons: Lucide React
+- AI: Groq Service (Llama-3 model)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Setup and Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. Clone the repository.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Configuration:
+   Create a `.env` file in the root directory and add your Groq API key:
+   ```env
+   VITE_GROQ_API_KEY=your_groq_api_key_here
+   ```
+4. Development Mode:
+   ```bash
+   npm run dev
+   ```
+5. Production Build:
+   ```bash
+   npm run build
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Black Protocol Architecture
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+The dashboard implements a high-contrast design language inspired by tactical intelligence systems. It uses a custom bento-grid layout for optimal information density and real-time path animation for waveform visualizations.
