@@ -17,7 +17,6 @@ export interface AIAnalysis {
 
 // Simple cache to prevent redundant calls
 let cachedAnalysis: AIAnalysis | null = null;
-let lastAnalysisAttempt = 0;
 
 export const analyzeStoriesWithGroq = async (stories: string[]): Promise<AIAnalysis> => {
   // Check rate limit
@@ -54,7 +53,7 @@ export const analyzeStoriesWithGroq = async (stories: string[]): Promise<AIAnaly
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-specdec",
+        model: "llama-3.3-70b-versatile",
         messages: [
           {
             role: "system",

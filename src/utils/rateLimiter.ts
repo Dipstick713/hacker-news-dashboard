@@ -43,13 +43,12 @@ class RateLimiter {
     }
 
     if (this.requestCount >= this.maxRequestsPerMinute) {
-      console.warn("Global rate limit exceeded for this session.");
       return false;
     }
 
     // Check Interval (Between consecutive calls)
     if (now - this.lastRequest < this.minInterval) {
-      console.warn("Request throttled: Interval too short.");
+      // Return false silently as this is often triggered by React StrictMode during dev
       return false;
     }
 
@@ -59,5 +58,5 @@ class RateLimiter {
   }
 }
 
-export const aiRateLimiter = new RateLimiter(10000); // 10s cooldown for AI
-export const dataRateLimiter = new RateLimiter(2000);   // 2s cooldown for HN Data
+export const aiRateLimiter = new RateLimiter(5000);  // 5s cooldown for AI
+export const dataRateLimiter = new RateLimiter(800);   // 800ms cooldown for HN Data
