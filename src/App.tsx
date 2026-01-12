@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Header } from './components/Header';
 import { VelocityCard } from './components/VelocityCard';
 import { LiveFeed } from './components/LiveFeed';
@@ -21,22 +21,23 @@ export default function App() {
     const loadData = async () => {
       setLoading(true);
       try {
-        const [topData, histData] = await Promise.all([
-          fetchTopStories(12, timeframe),
-          fetchHistoricalStory().catch(() => null)
-        ]);
+        // Fetch top stories first (critical for initial render)
+        const topData = await fetchTopStories(12, timeframe);
         
         if (topData.length > 0) {
           setStories(topData);
-          // Background AI analysis
-          analyzeStoriesWithGroq(topData.map(s => s.title))
-            .then(setAiAnalysis)
-            .catch(err => console.error("AI Analysis failed:", err));
+          setLoading(false); // Reveal the dashboard as soon as stories are ready
+
+          // Non-blocking secondary fetches
+          Promise.all([
+            fetchHistoricalStory().then(setHistoricalStory),
+            analyzeStoriesWithGroq(topData.map(s => s.title)).then(setAiAnalysis)
+          ]).catch(err => console.error("Secondary focus failure:", err));
+        } else {
+          setLoading(false);
         }
-        if (histData) setHistoricalStory(histData);
       } catch (err) {
         console.error("Protocol failure:", err);
-      } finally {
         setLoading(false);
       }
     };
@@ -44,19 +45,25 @@ export default function App() {
   }, [timeframe]);
 
 
-  const techStack = aiAnalysis && aiAnalysis.tags.length > 0
-    ? aiAnalysis.tags.map(t => ({ 
+  const techStack = useMemo(() => {
+    if (aiAnalysis && aiAnalysis.tags.length > 0) {
+      return aiAnalysis.tags.map(t => ({ 
         name: t.name, 
         trend: t.trend
-      }))
-    : extractTechStack(stories);
+      }));
+    }
+    return extractTechStack(stories);
+  }, [aiAnalysis, stories]);
 
-  const sentiment = aiAnalysis 
-    ? [
+  const sentiment = useMemo(() => {
+    if (aiAnalysis) {
+      return [
         { label: 'Excited', value: aiAnalysis.sentiment.excited, color: 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]' },
         { label: 'Skeptical', value: aiAnalysis.sentiment.skeptical, color: 'bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]' },
-      ]
-    : calculateSentiment(stories);
+      ];
+    }
+    return calculateSentiment(stories);
+  }, [aiAnalysis, stories]);
 
   if (loading) {
     return (

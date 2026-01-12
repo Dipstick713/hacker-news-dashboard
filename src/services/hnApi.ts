@@ -113,14 +113,26 @@ export const fetchHistoricalStory = async (): Promise<HNStory> => {
   };
 
   try {
-    let attempts = 0;
-    while (attempts < 30) {
-      // Broadened range: 1M to 30M
-      const randomOldId = Math.floor(Math.random() * 29000000) + 1;
-      const story = await fetchStoryDetails(randomOldId);
-      // Look for high-impact stories to make it feel "historic"
-      if (story && (story.points || 0) > 150) return story;
-      attempts++;
+    // Optimization: Use Algolia to find a random high-scoring historical story
+    // This is significantly faster than the previous brute-force method
+    const randomPage = Math.floor(Math.random() * 100);
+    const res = await fetch(`https://hn.algolia.com/api/v1/search?tags=story&numericFilters=points>500&page=${randomPage}&hitsPerPage=1`);
+    const data = await res.json();
+    
+    if (data.hits && data.hits.length > 0) {
+      const hit = data.hits[0];
+      return {
+        id: parseInt(hit.objectID),
+        title: hit.title,
+        points: hit.points,
+        comments: hit.num_comments,
+        author: hit.author,
+        time: formatTimeAgo(hit.created_at_i),
+        url: hit.url,
+        domain: getDomain(hit.url),
+        velocity: Math.floor(Math.random() * 30) + 5,
+        history: Array.from({ length: 10 }, () => Math.floor(Math.random() * 100))
+      };
     }
     return FALLBACK_STORY;
   } catch (err) {
