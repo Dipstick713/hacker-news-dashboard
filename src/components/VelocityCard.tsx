@@ -7,9 +7,12 @@ import type { HNStory } from '../services/hnApi';
 
 interface VelocityCardProps {
   story: HNStory;
+  summary?: string;
+  trajectory?: number[];
+  intensity?: string;
 }
 
-export const VelocityCard = ({ story }: VelocityCardProps) => {
+export const VelocityCard = ({ story, summary, trajectory, intensity }: VelocityCardProps) => {
   return (
     <BentoCard className="md:col-span-4 md:row-span-3 flex flex-col group bg-zinc-900/10 border-white/5" delay={0.1}>
       {/* Background Icon */}
@@ -36,9 +39,26 @@ export const VelocityCard = ({ story }: VelocityCardProps) => {
         
         {/* Content Area - Fixed Underflow */}
         <div className="flex-1 min-h-0 overflow-hidden flex flex-col justify-center">
-          <h2 className="text-3xl md:text-5xl lg:text-7xl font-black text-white leading-[1.05] tracking-tighter mb-8 group-hover:tracking-tight transition-all duration-500 line-clamp-2 lg:line-clamp-3">
+          <h2 className="text-3xl md:text-5xl lg:text-7xl font-black text-white leading-[1.05] tracking-tighter mb-4 group-hover:tracking-tight transition-all duration-500 line-clamp-2 lg:line-clamp-3">
             {story.title}
           </h2>
+
+          <div className="min-h-[2.5rem]">
+            {summary ? (
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-orange-500/80 font-['JetBrains_Mono'] text-xs uppercase tracking-wider mb-8 max-w-2xl line-clamp-2 italic"
+              >
+                Intelligence: {summary}
+              </motion.p>
+            ) : (
+              <div className="flex items-center gap-2 mb-8 animate-pulse text-zinc-800">
+                <div className="w-1 h-1 rounded-full bg-orange-500/20" />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Intercepting Neural Stream...</span>
+              </div>
+            )}
+          </div>
 
           <div className="flex flex-wrap items-center gap-8 md:gap-12 text-zinc-400">
             <div className="flex flex-col">
@@ -66,10 +86,10 @@ export const VelocityCard = ({ story }: VelocityCardProps) => {
         <div className="mt-8 pt-8 border-t border-white/5 flex flex-col md:flex-row items-end justify-between gap-6 shrink-0">
            <div className="w-full md:w-2/3">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">Live Analysis Flow</p>
-                <span className="text-[10px] font-['JetBrains_Mono'] text-emerald-500 tracking-tighter font-bold">+12% Volatility</span>
+                <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.2em]">{trajectory ? 'AI Waveform Analysis' : 'Live Analysis Flow'}</p>
+                <span className="text-[10px] font-['JetBrains_Mono'] text-emerald-500 tracking-tighter font-bold">{trajectory ? intensity || 'Active Density' : '+12% Volatility'}</span>
               </div>
-              <SmoothSparkline data={story.history || []} />
+              <SmoothSparkline data={trajectory || story.history || []} />
            </div>
            <a 
              href={story.url || `https://news.ycombinator.com/item?id=${story.id}`}

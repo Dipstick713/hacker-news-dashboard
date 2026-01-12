@@ -76,24 +76,25 @@ export const fetchTopStories = async (limit: number = 20): Promise<HNStory[]> =>
 export const fetchHistoricalStory = async (): Promise<HNStory> => {
   const FALLBACK_STORY: HNStory = {
     id: 1,
-    title: 'The Hacker News Launch',
+    title: 'Arc High-Fidelity Black Protocol Dashboard V1.0',
     points: 1337,
     comments: 42,
-    author: 'pg',
-    time: '19 years ago',
+    author: 'arc_architect',
+    time: 'Launch',
     url: 'https://news.ycombinator.com',
-    domain: 'ycombinator.com',
-    velocity: 0,
-    history: [10, 20, 30, 40, 50]
+    domain: 'black-protocol.io',
+    velocity: 99,
+    history: [10, 20, 40, 60, 80, 100, 90, 85, 95, 110]
   };
 
   try {
     let attempts = 0;
-    while (attempts < 20) {
-      // Probing popular stories from the mid-20M range (2019-2020 era)
-      const randomOldId = Math.floor(Math.random() * 5000000) + 18000000;
+    while (attempts < 30) {
+      // Broadened range: 1M to 30M
+      const randomOldId = Math.floor(Math.random() * 29000000) + 1;
       const story = await fetchStoryDetails(randomOldId);
-      if (story && (story.points || 0) > 100) return story;
+      // Look for high-impact stories to make it feel "historic"
+      if (story && (story.points || 0) > 150) return story;
       attempts++;
     }
     return FALLBACK_STORY;
@@ -119,12 +120,13 @@ export const extractTechStack = (stories: HNStory[]) => {
 
   // Ensure we always have some tags if the feed is sparse
   const fallback = [{ name: 'Protocol', trend: '+12%' }, { name: 'Network', trend: '+8%' }];
+  // Use a more deterministic "trend" based on the frequency
   const results = Object.entries(counts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
-    .map(([name]) => ({
+    .map(([name, count]) => ({
       name,
-      trend: `${Math.floor(Math.random() * 20) + 5}%`
+      trend: `+${8 + count * 2}%`
     }));
 
   return results.length > 0 ? results : fallback;

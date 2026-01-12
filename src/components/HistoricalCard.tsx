@@ -21,6 +21,12 @@ export const HistoricalCard = ({ story }: HistoricalCardProps) => {
       </div>
       
       <div>
+        <div className="flex items-center gap-2 mb-2">
+          <div className="px-2 py-0.5 rounded bg-violet-500/10 text-violet-400 text-[8px] font-black uppercase tracking-widest">
+            Historic Artifact
+          </div>
+          <div className="h-px flex-1 bg-violet-500/10" />
+        </div>
         <h3 className="text-2xl font-black text-white leading-tight mb-4 group-hover/history:text-violet-400 transition-colors duration-500 line-clamp-2">
           {story?.title || 'Archive Fragment'}
         </h3>

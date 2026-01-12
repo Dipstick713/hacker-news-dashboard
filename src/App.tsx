@@ -6,6 +6,8 @@ import { SentimentGauge } from './components/SentimentGauge';
 import { TechStack } from './components/TechStack';
 import { HistoricalCard } from './components/HistoricalCard';
 import { fetchTopStories, fetchHistoricalStory, extractTechStack, calculateSentiment } from './services/hnApi';
+import { analyzeStoriesWithGroq } from './services/aiService';
+import type { AIAnalysis } from './services/aiService';
 import type { HNStory } from './services/hnApi';
 
 export default function App() {
@@ -13,6 +15,7 @@ export default function App() {
   const [search, setSearch] = useState('');
   const [stories, setStories] = useState<HNStory[]>([]);
   const [historicalStory, setHistoricalStory] = useState<HNStory | null>(null);
+  const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,7 +27,13 @@ export default function App() {
           fetchHistoricalStory().catch(() => null)
         ]);
         
-        if (topData.length > 0) setStories(topData);
+        if (topData.length > 0) {
+          setStories(topData);
+          // Background AI analysis
+          analyzeStoriesWithGroq(topData.map(s => s.title))
+            .then(setAiAnalysis)
+            .catch(err => console.error("AI Analysis failed:", err));
+        }
         if (histData) setHistoricalStory(histData);
       } catch (err) {
         console.error("Protocol failure:", err);
@@ -39,8 +48,19 @@ export default function App() {
     s.title.toLowerCase().includes(search.toLowerCase())
   );
 
-  const techStack = extractTechStack(stories);
-  const sentiment = calculateSentiment(stories);
+  const techStack = aiAnalysis && aiAnalysis.tags.length > 0
+    ? aiAnalysis.tags.map(t => ({ 
+        name: t.name, 
+        trend: t.trend
+      }))
+    : extractTechStack(stories);
+
+  const sentiment = aiAnalysis 
+    ? [
+        { label: 'Excited', value: aiAnalysis.sentiment.excited, color: 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]' },
+        { label: 'Skeptical', value: aiAnalysis.sentiment.skeptical, color: 'bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]' },
+      ]
+    : calculateSentiment(stories);
 
   if (loading) {
     return (
@@ -70,13 +90,23 @@ export default function App() {
         {/* Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6 auto-rows-[200px]">
           {/* Top Story / Velocity Hero */}
-          {filteredStories.length > 0 && <VelocityCard story={filteredStories[0]} />}
+          {filteredStories.length > 0 && (
+            <VelocityCard 
+              story={filteredStories[0]} 
+              summary={aiAnalysis?.executiveSummary} 
+              trajectory={aiAnalysis?.trajectory}
+              intensity={aiAnalysis?.intensity}
+            />
+          )}
 
           {/* Live Stream */}
           <LiveFeed stories={filteredStories.slice(1)} />
 
           {/* Sentiment Gauge */}
-          <SentimentGauge sentiment={sentiment} />
+          <SentimentGauge 
+            sentiment={sentiment} 
+            description={aiAnalysis?.sentiment.description} 
+          />
 
           {/* Tech Trends */}
           <TechStack topics={techStack} />
@@ -104,7 +134,7 @@ export default function App() {
            </div>
            
            <div className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.5em] font-['JetBrains_Mono']">
-             HN.RADAR // BLACK-BOX-SYSTEM
+             HN.DASHBOARD // BLACK-BOX-SYSTEM
            </div>
         </footer>
       </div>
