@@ -22,7 +22,7 @@ export default function App() {
       setLoading(true);
       try {
         const [topData, histData] = await Promise.all([
-          fetchTopStories(12),
+          fetchTopStories(12, timeframe),
           fetchHistoricalStory().catch(() => null)
         ]);
         

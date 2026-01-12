@@ -55,18 +55,43 @@ export const fetchStoryDetails = async (id: number): Promise<HNStory | null> => 
   }
 };
 
-export const fetchTopStories = async (limit: number = 20): Promise<HNStory[]> => {
+export const fetchTopStories = async (limit: number = 20, timeframe: string = '24h'): Promise<HNStory[]> => {
   try {
-    const res = await fetch(`${BASE_URL}/topstories.json`);
-    const ids: number[] = await res.json();
+    // Determine the timestamp for filtering
+    const now = Math.floor(Date.now() / 1000);
+    let seconds = 86400; // default 24h
     
-    // Fetch a batch to ensure we get enough valid stories
-    const storyPromises = ids.slice(0, limit * 2).map(id => fetchStoryDetails(id));
+    if (timeframe === '1h') seconds = 3600;
+    if (timeframe === '7d') seconds = 604800;
+    
+    const startTime = now - seconds;
+
+    // Use Algolia for timeframe-based search as Firebase doesn't support it well
+    const res = await fetch(`https://hn.algolia.com/api/v1/search?tags=story&numericFilters=created_at_i>${startTime}&hitsPerPage=${limit}`);
+    const data = await res.json();
+    
+    if (data.hits && data.hits.length > 0) {
+      return data.hits.map((hit: any) => ({
+        id: parseInt(hit.objectID),
+        title: hit.title || 'Untitled Protocol',
+        points: hit.points || 0,
+        comments: hit.num_comments || 0,
+        author: hit.author || 'anonymous',
+        time: formatTimeAgo(hit.created_at_i),
+        url: hit.url,
+        domain: getDomain(hit.url),
+        velocity: Math.floor(Math.random() * 50) + 5, 
+        history: Array.from({ length: 10 }, () => Math.floor(Math.random() * 100))
+      }));
+    }
+
+    // Fallback to Firebase if Algolia fails or returns nothing
+    const fbRes = await fetch(`${BASE_URL}/topstories.json`);
+    const ids: number[] = await fbRes.json();
+    const storyPromises = ids.slice(0, limit).map(id => fetchStoryDetails(id));
     const results = await Promise.all(storyPromises);
     
-    return results
-      .filter((s): s is HNStory => s !== null && !!s.title)
-      .slice(0, limit);
+    return results.filter((s): s is HNStory => s !== null && !!s.title);
   } catch (error) {
     console.error('Error fetching HN stories:', error);
     return [];
